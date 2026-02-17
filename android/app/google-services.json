@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182869968469",
+    "project_id": "economics-learner",
+    "storage_bucket": "economics-learner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182869968469:android:c300f67d2af93099da36dc",
+        "android_client_info": {
+          "package_name": "com.example.economics_learner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_eHWMcFSU1mFFGsnBklRK0e5e3-ddfGg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
