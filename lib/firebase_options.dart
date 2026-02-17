@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '182869968469',
     projectId: 'economics-learner',
     authDomain: 'economics-learner.firebaseapp.com',
+    databaseURL: 'https://economics-learner-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'economics-learner.firebasestorage.app',
     measurementId: 'G-H5148B4R0P',
   );
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:182869968469:android:c300f67d2af93099da36dc',
     messagingSenderId: '182869968469',
     projectId: 'economics-learner',
+    databaseURL: 'https://economics-learner-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'economics-learner.firebasestorage.app',
   );
 
@@ -63,7 +65,10 @@ class DefaultFirebaseOptions {
     appId: '1:182869968469:ios:f04322fa84ebe228da36dc',
     messagingSenderId: '182869968469',
     projectId: 'economics-learner',
+    databaseURL: 'https://economics-learner-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'economics-learner.firebasestorage.app',
+    androidClientId: '182869968469-1h5pn53tjpot0n2i9e0n1smsrf28kvae.apps.googleusercontent.com',
+    iosClientId: '182869968469-e8gpkm7fau5v5ujr8fearhqr7u75tff0.apps.googleusercontent.com',
     iosBundleId: 'com.example.economicsLearner',
   );
 
@@ -72,7 +77,10 @@ class DefaultFirebaseOptions {
     appId: '1:182869968469:ios:f04322fa84ebe228da36dc',
     messagingSenderId: '182869968469',
     projectId: 'economics-learner',
+    databaseURL: 'https://economics-learner-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'economics-learner.firebasestorage.app',
+    androidClientId: '182869968469-1h5pn53tjpot0n2i9e0n1smsrf28kvae.apps.googleusercontent.com',
+    iosClientId: '182869968469-e8gpkm7fau5v5ujr8fearhqr7u75tff0.apps.googleusercontent.com',
     iosBundleId: 'com.example.economicsLearner',
   );
 
@@ -82,7 +90,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '182869968469',
     projectId: 'economics-learner',
     authDomain: 'economics-learner.firebaseapp.com',
+    databaseURL: 'https://economics-learner-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'economics-learner.firebasestorage.app',
     measurementId: 'G-GSBX2T107J',
   );
+
 }
