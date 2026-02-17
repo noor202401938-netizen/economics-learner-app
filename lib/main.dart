@@ -13,27 +13,33 @@ import 'screens/signup_page.dart';
 import 'screens/role_based_wrapper.dart';
 import 'repository/user_preferences_repository.dart';
 import 'utils/preference_notifier.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // Initialize crash reporting
   final crashReporter = CrashLogReporter();
   crashReporter.initialize();
-  
-  // Pass all uncaught errors to Crashlytics
+
+  // Pass all uncaught Flutter errors to Crashlytics
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
-  
-  // Pass all uncaught asynchronous errors to Crashlytics
+
+  // Pass all uncaught async errors to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
-  
-  runApp(const MyApp(initialRoute: '',));
+
+  runApp(const MyApp(
+    initialRoute: '',
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -44,7 +50,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final UserPreferencesRepository _preferencesRepository = UserPreferencesRepository();
+  final UserPreferencesRepository _preferencesRepository =
+      UserPreferencesRepository();
   final PreferenceNotifier _preferenceNotifier = PreferenceNotifier.instance;
 
   @override
@@ -141,16 +148,12 @@ class _MyAppState extends State<MyApp> {
           secondary: brightness == Brightness.light
               ? Colors.teal.shade900
               : Colors.teal.shade100,
-          surface: brightness == Brightness.light
-              ? Colors.white
-              : Colors.black,
-          onSurface: brightness == Brightness.light
-              ? Colors.black
-              : Colors.white,
+          surface: brightness == Brightness.light ? Colors.white : Colors.black,
+          onSurface:
+              brightness == Brightness.light ? Colors.black : Colors.white,
         ),
-        scaffoldBackgroundColor: brightness == Brightness.light
-            ? Colors.white
-            : Colors.black,
+        scaffoldBackgroundColor:
+            brightness == Brightness.light ? Colors.white : Colors.black,
         cardColor: brightness == Brightness.light
             ? Colors.grey.shade100
             : Colors.grey.shade900,
@@ -177,7 +180,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkFirstLaunch() async {
-    await Future.delayed(const Duration(seconds: 2)); // Show splash for 2 seconds
+    await Future.delayed(
+        const Duration(seconds: 2)); // Show splash for 2 seconds
 
     final prefs = await SharedPreferences.getInstance();
     final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
