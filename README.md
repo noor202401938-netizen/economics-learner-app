@@ -1,44 +1,115 @@
-# economics_learner
+# Economics Learner App
 
-A new Flutter project.
+A cross-platform Flutter application for learning economics with AI-powered tutoring, quizzes, and course management.
+
+## Features
+
+- **AI Tutor Chat** — Get personalised economics explanations via an integrated AI tutor
+- **AI Quiz Engine** — Adaptive quizzes generated based on course content
+- **Course Management** — Browse, enrol in, and track progress through economics courses
+- **Video Lessons** — YouTube-integrated video player with progress tracking
+- **Certificates** — Generate downloadable PDF certificates on course completion
+- **Admin Dashboard** — Create and manage courses, upload XML-based lesson content
+- **Notifications** — Push notifications via Firebase Cloud Messaging
+- **Payments** — Stripe payment integration for paid courses
+- **Accessibility** — Theme customisation, font-size scaling, and high-contrast mode
+
+## Supported Platforms
+
+| Platform | Status |
+|---|---|
+| Android | ✅ |
+| iOS | ✅ |
+| Web | ✅ |
+| macOS | ✅ |
+| Windows | ✅ |
+| Linux | ✅ |
+
+## Prerequisites
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) ≥ 3.0.0
+- A [Firebase project](https://console.firebase.google.com/) with Authentication, Firestore, Storage, Messaging, Analytics, and Crashlytics enabled
+- A [Stripe](https://stripe.com/) account for payment processing
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. **Clone the repository**
 
-A few resources to get you started if this is your first Flutter project:
+   ```bash
+   git clone <repo-url>
+   cd economics-learner-app
+   ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+2. **Install dependencies**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+   ```bash
+   flutter pub get
+   ```
 
-## Firestore Data Model (initial)
+3. **Configure Firebase**
 
-- Collection `users/{uid}`
-  - `uid` (string)
-  - `email` (string)
-  - `displayName` (string)
-  - `photoURL` (string)
-  - `role` (string: `student` | `admin`)
-  - `phone` (string)
-  - `grade` (string)
-  - `interest` (string)
-  - `createdAt` (timestamp)
-  - `lastLogin` (timestamp)
-  - `updatedAt` (timestamp)
-  - `isActive` (bool)
+   Run [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/) to generate `lib/firebase_options.dart` for your own Firebase project:
 
-- Collections to add next
-  - `courses/{courseId}`: metadata, tags, level
-  - `courses/{courseId}/lessons/{lessonId}`: content units
-  - `enrollments/{docId}` or `users/{uid}/enrollments/{courseId}`
-  - `progress/{docId}` or `users/{uid}/progress/{lessonId}`: status, score
-  - `quizzes/{quizId}` and `quizSubmissions/{docId}`
-  - `certificates/{docId}`
-  - `payments/{docId}`
-  - `notifications/{docId}`
+   ```bash
+   dart pub global activate flutterfire_cli
+   flutterfire configure
+   ```
 
-Security: restrict reads/writes by `uid` ownership and `role` for admin-only operations.
+   Also place your platform-specific Firebase config files:
+   - `android/app/google-services.json`
+   - `ios/Runner/GoogleService-Info.plist`
+
+4. **Configure Stripe** — Set your Stripe publishable key in `lib/config/api_config.dart`.
+
+5. **Run the app**
+
+   ```bash
+   flutter run
+   ```
+
+## Project Structure
+
+```
+lib/
+├── backend/          # Firebase Auth, Firestore, Storage, YouTube, XML parser
+├── business_logic/   # Managers & engines (auth, course, AI, payment, etc.)
+├── config/           # API configuration
+├── model/            # Data models (course, quiz, certificate, etc.)
+├── repository/       # Data access layer
+├── screens/          # UI screens (student & admin views)
+├── utils/            # Utilities (theme, PDF generator, preference notifier)
+├── widgtes/          # Reusable widgets (note: folder name matches source directory)
+├── firebase_options.dart
+└── main.dart
+assets/
+├── logo.png
+├── google.png
+└── course_content_template.xml
+```
+
+## Firestore Data Model
+
+- `users/{uid}` — user profile, role (`student` | `admin`), preferences
+- `courses/{courseId}` — course metadata, tags, level, price
+- `courses/{courseId}/lessons/{lessonId}` — lesson content units
+- `enrollments/{docId}` — enrolment records
+- `progress/{docId}` — lesson completion status and scores
+- `quizzes/{quizId}` / `quizSubmissions/{docId}` — quiz data
+- `certificates/{docId}` — issued certificates
+- `payments/{docId}` — payment records
+- `notifications/{docId}` — user notifications
+
+See `FIRESTORE_SECURITY_RULES.md` for recommended security rules.
+
+## Running Tests
+
+```bash
+flutter test
+```
+
+## Additional Guides
+
+- [Firestore Security Rules](FIRESTORE_SECURITY_RULES.md)
+- [Payment Setup](PAYMENT_SETUP_GUIDE.md)
+- [XML Course Content Guide](XML_COURSE_GUIDE.md)
+- [Video Player Setup](VIDEO_PLAYER_SETUP.md)
