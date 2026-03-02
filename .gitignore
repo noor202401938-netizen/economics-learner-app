@@ -43,8 +43,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Allow Flutter web build for deployment
-!build/
-build/*
-!build/web/
-!build/web/**
+# Flutter build artifacts
+/build/
