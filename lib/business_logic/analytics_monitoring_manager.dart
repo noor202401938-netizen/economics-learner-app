@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../repository/progress_repository.dart';
 import '../repository/enrollment_repository.dart';
 import '../repository/quiz_repository.dart';
+import '../repository/course_repository.dart';
 
 class AnalyticsMonitoringManager {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
@@ -12,6 +13,7 @@ class AnalyticsMonitoringManager {
   final ProgressRepository _progressRepository = ProgressRepository();
   final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
   final QuizRepository _quizRepository = QuizRepository();
+  final CourseRepository _courseRepository = CourseRepository();
 
   // Log event
   Future<void> logEvent(String eventName, Map<String, dynamic>? parameters) async {
@@ -45,10 +47,16 @@ class AnalyticsMonitoringManager {
       for (final doc in enrollments.docs) {
         final uid = doc.data()['uid'] as String?;
         if (uid == null) continue;
+
+        final course = await _courseRepository.getCourseById(courseId);
+        final totalLessons = course != null
+            ? course.syllabus.fold<int>(0, (sum, m) => sum + m.lessons.length)
+            : 1;
+
         final pct = await _progressRepository.getCourseCompletionPercentage(
           userId: uid,
           courseId: courseId,
-          totalLessons: 10,
+          totalLessons: totalLessons > 0 ? totalLessons : 1,
         );
         if (pct >= 100) completedCount++;
 
@@ -95,10 +103,15 @@ class AnalyticsMonitoringManager {
         );
         totalLessonsWatched += progress.where((p) => p.isCompleted).length;
 
+        final course = await _courseRepository.getCourseById(courseId);
+        final totalLessons = course != null
+            ? course.syllabus.fold<int>(0, (sum, m) => sum + m.lessons.length)
+            : 1;
+
         final completion = await _progressRepository.getCourseCompletionPercentage(
           userId: userId,
           courseId: courseId,
-          totalLessons: progress.length > 0 ? progress.length : 1,
+          totalLessons: totalLessons > 0 ? totalLessons : 1,
         );
         if (completion >= 100) completedCourses++;
       }

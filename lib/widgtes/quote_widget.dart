@@ -1,12 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-class QuoteWidget extends StatelessWidget {
+class QuoteWidget extends StatefulWidget {
   final String? quote;
   final String? author;
 
   const QuoteWidget({super.key, this.quote, this.author});
 
+  @override
+  State<QuoteWidget> createState() => _QuoteWidgetState();
+}
+
+class _QuoteWidgetState extends State<QuoteWidget> {
   static const List<Map<String, String>> _defaultQuotes = [
     {
       'quote': 'Economics is everywhere, and understanding economics can help you make better decisions.',
@@ -30,11 +35,18 @@ class QuoteWidget extends StatelessWidget {
     },
   ];
 
+  late final Map<String, String> _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.quote != null
+        ? {'quote': widget.quote!, 'author': widget.author ?? ''}
+        : _defaultQuotes[Random().nextInt(_defaultQuotes.length)];
+  }
+
   @override
   Widget build(BuildContext context) {
-    final selected = quote != null
-        ? {'quote': quote!, 'author': author ?? ''}
-        : _defaultQuotes[Random().nextInt(_defaultQuotes.length)];
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -58,7 +70,7 @@ class QuoteWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            selected['quote']!,
+            _selected['quote']!,
             style: TextStyle(
               fontSize: 15,
               fontStyle: FontStyle.italic,
@@ -66,12 +78,12 @@ class QuoteWidget extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          if (selected['author']!.isNotEmpty) ...[
+          if (_selected['author']!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                '— ${selected['author']}',
+                '— ${_selected['author']}',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

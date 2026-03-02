@@ -86,7 +86,9 @@ class _StudentHomeState extends State<StudentHome> {
           _totalLearningHours = totalHours;
         });
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error loading stats: $e');
+    }
   }
 
   Future<void> _loadEnrolledCourses() async {

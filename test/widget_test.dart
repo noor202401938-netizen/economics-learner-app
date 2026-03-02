@@ -117,6 +117,9 @@ void main() {
       );
 
       expect(find.byIcon(Icons.format_quote), findsOneWidget);
+      // Should render at least a quote text and an author text
+      final textWidgets = find.byType(Text);
+      expect(textWidgets, findsAtLeastNWidgets(2));
     });
   });
 }
