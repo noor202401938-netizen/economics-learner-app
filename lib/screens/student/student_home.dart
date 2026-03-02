@@ -16,6 +16,7 @@ import 'course_list_screen.dart';
 import 'course_content_screen.dart';
 import '../../repository/enrollment_repository.dart';
 import '../../repository/course_repository.dart';
+import '../../repository/progress_repository.dart';
 import 'edit_profile_screen.dart';
 import 'change_password_screen.dart';
 import 'help_support_screen.dart';
@@ -35,12 +36,15 @@ class _StudentHomeState extends State<StudentHome> {
   final RecommendationEngine _recommendationEngine = RecommendationEngine();
   final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
   final CourseRepository _courseRepository = CourseRepository();
+  final ProgressRepository _progressRepository = ProgressRepository();
   int _selectedIndex = 0;
   Map<String, dynamic>? _userProfile;
   List<CourseModel> _recommendedCourses = [];
   List<CourseModel> _enrolledCourses = [];
   bool _loadingEnrolled = false;
   bool _isLoadingRecommendations = false;
+  int _completedCourseCount = 0;
+  int _totalLearningHours = 0;
 
   @override
   void initState() {
@@ -48,6 +52,41 @@ class _StudentHomeState extends State<StudentHome> {
     _loadUserProfile();
     _loadEnrolledCourses();
     _loadRecommendations();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final ids = await _enrollmentRepository.getUserCourseIds(uid: user.uid);
+      int completed = 0;
+      int totalHours = 0;
+      for (final courseId in ids) {
+        final course = await _courseRepository.getCourseById(courseId);
+        if (course != null) {
+          totalHours += course.duration;
+          final totalLessons = course.syllabus.fold<int>(
+            0,
+            (sum, module) => sum + module.lessons.length,
+          );
+          if (totalLessons > 0) {
+            final pct = await _progressRepository.getCourseCompletionPercentage(
+              userId: user.uid,
+              courseId: courseId,
+              totalLessons: totalLessons,
+            );
+            if (pct >= 100) completed++;
+          }
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _completedCourseCount = completed;
+          _totalLearningHours = totalHours;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadEnrolledCourses() async {
@@ -269,7 +308,7 @@ class _StudentHomeState extends State<StudentHome> {
                       Expanded(
                         child: _buildQuickStat(
                           'Courses',
-                          '0',
+                          '${_enrolledCourses.length}',
                           Icons.book,
                           Colors.blue,
                         ),
@@ -282,7 +321,7 @@ class _StudentHomeState extends State<StudentHome> {
                       Expanded(
                         child: _buildQuickStat(
                           'Completed',
-                          '0',
+                          '$_completedCourseCount',
                           Icons.check_circle,
                           Colors.green,
                         ),
@@ -295,7 +334,7 @@ class _StudentHomeState extends State<StudentHome> {
                       Expanded(
                         child: _buildQuickStat(
                           'Hours',
-                          '0',
+                          '$_totalLearningHours',
                           Icons.access_time,
                           Colors.orange,
                         ),
@@ -771,37 +810,218 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildProgressScreen() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.analytics_outlined,
-              size: 100,
-              color: Colors.grey.shade300,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'No progress data',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+    if (_loadingEnrolled) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF4169E1)),
+      );
+    }
+
+    if (_enrolledCourses.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.analytics_outlined,
+                size: 100,
+                color: Colors.grey.shade300,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Start learning to track your progress',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade500,
+              const SizedBox(height: 24),
+              Text(
+                'No progress data',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade700,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Enroll in a course to start tracking your progress',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
+      );
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF4169E1), Color(0xFF1E3A8A)],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Learning Summary',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildSummaryItem('Enrolled', '${_enrolledCourses.length}'),
+                    _buildSummaryItem('Completed', '$_completedCourseCount'),
+                    _buildSummaryItem('Hours', '$_totalLearningHours'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Course Progress',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Per-course progress cards
+          ...(_enrolledCourses.map((course) {
+            final totalLessons = course.syllabus.fold<int>(
+              0,
+              (sum, module) => sum + module.lessons.length,
+            );
+            return FutureBuilder<double>(
+              future: user != null && totalLessons > 0
+                  ? _progressRepository.getCourseCompletionPercentage(
+                      userId: user.uid,
+                      courseId: course.courseId,
+                      totalLessons: totalLessons,
+                    )
+                  : Future.value(0.0),
+              builder: (context, snapshot) {
+                final pct = snapshot.data ?? 0.0;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CourseContentScreen(course: course),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            course.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$totalLessons lessons · ${course.duration}h',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: pct / 100,
+                              minHeight: 8,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                pct >= 100
+                                    ? Colors.green
+                                    : const Color(0xFF4169E1),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${pct.toStringAsFixed(0)}% complete',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: pct >= 100
+                                      ? Colors.green
+                                      : const Color(0xFF4169E1),
+                                ),
+                              ),
+                              if (pct >= 100)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 20,
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          })),
+        ],
       ),
+    );
+  }
+
+  Widget _buildSummaryItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 14,
+          ),
+        ),
+      ],
     );
   }
 

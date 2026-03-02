@@ -195,5 +195,23 @@ class QuizRepository {
       throw Exception('Failed to get assignment submissions: $e');
     }
   }
+
+  // Get quiz results for a user in a specific course
+  Future<List<Map<String, dynamic>>> getQuizResults({
+    required String userId,
+    required String courseId,
+  }) async {
+    try {
+      final snapshot = await _firestore
+          .collection(_quizSubmissionsCollection)
+          .where('userId', isEqualTo: userId)
+          .where('courseId', isEqualTo: courseId)
+          .get();
+
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }
 
