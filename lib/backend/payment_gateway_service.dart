@@ -2,11 +2,12 @@
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 
 class PaymentGatewayService {
   // Stripe Configuration
-  static const String _stripePublishableKey = 'YOUR_STRIPE_PUBLISHABLE_KEY';
-  static const String _stripeSecretKey = 'YOUR_STRIPE_SECRET_KEY';
+  static const String _stripePublishableKey = ApiConfig.stripePublishableKey;
+  static const String _stripeSecretKey = ApiConfig.stripeSecretKey;
   static const String _stripeApiUrl = 'https://api.stripe.com/v1';
 
   // Initialize Stripe

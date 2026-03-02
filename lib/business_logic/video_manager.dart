@@ -5,16 +5,15 @@ import '../repository/progress_repository.dart';
 import '../backend/youtube_service.dart';
 import '../model/video_progress_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../config/api_config.dart';
 
 class VideoManager {
   final ProgressRepository _progressRepository = ProgressRepository();
   final YouTubeService _youtubeService = YouTubeService();
 
   // OpenAI API Configuration
-  static const String _openAIApiKey =
-      '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';
-  static const String _openAIApiUrl =
-      'https://api.openai.com/v1/chat/completions';
+  static const String _openAIApiKey = ApiConfig.openAIApiKey;
+  static const String _openAIApiUrl = ApiConfig.openAIApiUrl;
 
   // Get video progress for a lesson
   Future<VideoProgressModel?> getVideoProgress({

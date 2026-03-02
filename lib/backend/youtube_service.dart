@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model/video_progress_model.dart';
+import '../config/api_config.dart';
 
 class YouTubeService {
   // Extract YouTube video ID from URL
@@ -14,11 +15,9 @@ class YouTubeService {
   }
 
   // Get video information (requires YouTube Data API v3)
-  // Note: You'll need to add your YouTube API key
   Future<Map<String, dynamic>?> getVideoInfo(String videoId) async {
     try {
-      // TODO: Replace with your YouTube Data API key
-      const apiKey = 'AIzaSyAsj1Hqcs0aRovTropSo0BRRy3AWgOEcr4';
+      const apiKey = ApiConfig.youtubeApiKey;
       final url = Uri.parse(
         'https://www.googleapis.com/youtube/v3/videos?id=$videoId&key=$apiKey&part=snippet,contentDetails,statistics',
       );
@@ -41,7 +40,7 @@ class YouTubeService {
   // Get captions from YouTube (requires YouTube Data API v3)
   Future<VideoCaptionModel?> getVideoCaptions(String videoId, {String language = 'en'}) async {
     try {
-      const apiKey = 'AIzaSyAsj1Hqcs0aRovTropSo0BRRy3AWgOEcr4';
+      const apiKey = ApiConfig.youtubeApiKey;
       
       // First, get caption track ID
       final captionListUrl = Uri.parse(

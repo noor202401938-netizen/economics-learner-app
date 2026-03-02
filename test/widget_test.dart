@@ -1,30 +1,125 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:ai_tutor_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:ai_tutor_app/widgtes/custom_button.dart';
+import 'package:ai_tutor_app/widgtes/quote_widget.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget( const MyApp(initialRoute: 'welcome',));
+  group('CustomButton', () {
+    testWidgets('renders text correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomButton(
+              text: 'Test Button',
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(find.text('Test Button'), findsOneWidget);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    testWidgets('renders with icon when provided', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomButton(
+              text: 'With Icon',
+              icon: Icons.add,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.text('With Icon'), findsOneWidget);
+    });
+
+    testWidgets('shows loading indicator when isLoading is true',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomButton(
+              text: 'Loading',
+              isLoading: true,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Loading'), findsNothing);
+    });
+
+    testWidgets('calls onPressed when tapped', (WidgetTester tester) async {
+      bool pressed = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomButton(
+              text: 'Tap Me',
+              onPressed: () => pressed = true,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Tap Me'));
+      expect(pressed, isTrue);
+    });
+
+    testWidgets('renders outlined variant', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomButton(
+              text: 'Outlined',
+              isOutlined: true,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(OutlinedButton), findsOneWidget);
+    });
+  });
+
+  group('QuoteWidget', () {
+    testWidgets('renders custom quote and author', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: QuoteWidget(
+              quote: 'Test quote content',
+              author: 'Test Author',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Test quote content'), findsOneWidget);
+      expect(find.text('— Test Author'), findsOneWidget);
+    });
+
+    testWidgets('renders a default quote when none provided',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: QuoteWidget(),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.format_quote), findsOneWidget);
+      // Should render at least a quote text and an author text
+      final textWidgets = find.byType(Text);
+      expect(textWidgets, findsAtLeastNWidgets(2));
+    });
   });
 }

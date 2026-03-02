@@ -3,15 +3,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model/quiz_model.dart';
 import '../repository/quiz_repository.dart';
+import '../config/api_config.dart';
 
 class AIQuizEngine {
   final QuizRepository _quizRepository = QuizRepository();
 
   // OpenAI API Configuration
-  static const String _openAIApiKey =
-      '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';
-  static const String _openAIApiUrl =
-      'https://api.openai.com/v1/chat/completions';
+  static const String _openAIApiKey = ApiConfig.openAIApiKey;
+  static const String _openAIApiUrl = ApiConfig.openAIApiUrl;
 
   // Generate quiz using AI
   Future<QuizModel> generateQuiz({
